@@ -1,0 +1,23 @@
+name: CI/CD Build and Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout Code from GitHub
+        uses: actions/checkout@v4
+
+      - name: Stop Old Container if Running
+        run: |
+          docker stop app-container || true
+          docker rm app-container || true
+
+      - name: Build New Docker Image
+        run: docker build -t my-web-app:latest .
+
+      - name: Run Fresh Container on Port 80
+        run: docker run -d -p 80:80 --name app-container my-web-app:latest
